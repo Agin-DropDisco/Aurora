@@ -209,7 +209,7 @@ contract ZooHarmonyOracle {
     AggregatorV3Interface internal priceFeed;
 
     constructor() public {
-        priceFeed = AggregatorV3Interface(0x2215F211d68743646e917e45B477a3E188AeAdA0); // Testnet ADDRESS Self Deployed See: https://github.com/Agin-DropDisco/Aurora/tree/main/ChainLink-SelfDeployed
+        priceFeed = AggregatorV3Interface(0x5aE1d51713809ACA90f140d1101c418f9CD74137); // Testnet ADDRESS Self Deployed See: https://github.com/Agin-DropDisco/Aurora/tree/main/ChainLink-SelfDeployed
     }
 
     function getLatestAURORAPrice() public view returns (int) {
