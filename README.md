@@ -1,1 +1,1 @@
-# Aurora
+# Near-Metabuild-Hackathon <--> Aurora
