@@ -3,7 +3,7 @@
 
 ## All contracts address:
 
-### ZooHarmony
+### ZooHarmony NFT Marketplace
 
 - [x] ZooHarmony Verified:  [0xb9F1E9AdE8EA71441b43B33da20C8E7FA45d61B2](https://testnet.aurorascan.dev/address/0xb9F1E9AdE8EA71441b43B33da20C8E7FA45d61B2)
 
