@@ -1,0 +1,31 @@
+{
+  "name": "dexs-subgraph",
+  "version": "1.0.0",
+  "repository": "https://github.com/Agin-DropDisco/HARMONY_ONE/tree/main/dexswap-subgraph",
+  "license": "GPL-3.0-or-later",
+  "scripts": {
+    "codegen:harmony": "graph codegen subgraph.harmony.yaml --output-dir src/types/",
+    "codegen:mumbai": "graph codegen subgraph.mumbai.yaml --output-dir src/types/",
+    "codegen:aurora": "graph codegen aurora-testnet.subgraph.yaml --output-dir src/types/",
+    "build:mumbai": "graph build subgraph.mumbai.yaml",
+    "build:aurora": "graph build aurora-testnet.subgraph.yaml",
+    "deploy:mumbai": "graph deploy agin-dropdisco/dexswappolygon subgraph.mumbai.yaml --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token fb68df21c1d149f68548567cc53a8844 --debug",
+    "deploy:aurora": "graph deploy agin-dropdisco/auroratestnet aurora-testnet.subgraph.yaml --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token fb68df21c1d149f68548567cc53a8844 --debug",
+    "build:harmony": "graph build subgraph.harmony.yaml",
+    "build:testnet": "graph build subgraph.testnet.yaml",
+    "create:harmony": "graph create --node https://graph.t.hmny.io:8020 mypath/test_path_name subgraph.harmony.yaml",
+    "create:testnet": "graph create --node https://graph.b.hmny.io:8020 dexswapAMM/testnet_dexswap subgraph.testnet.yaml",
+    "deploy:harmony": "graph deploy mypath/test_path_name subgraph.harmony.yaml --ipfs http://graph.t.hmny.io:5001  --node https://graph.t.hmny.io:8020 ",
+    "deploy:testnet": "graph deploy dexswapAMM/testnet_dexswap  subgraph.testnet.yaml --ipfs http://graph.b.hmny.io:5001  --node https://graph.b.hmny.io:8020 "
+  },
+  "devDependencies": {
+    "@graphprotocol/graph-cli": "^0.19.0",
+    "@graphprotocol/graph-ts": "^0.19.0",
+    "@typescript-eslint/eslint-plugin": "^2.0.0",
+    "@typescript-eslint/parser": "^2.0.0",
+    "eslint": "^6.2.2",
+    "eslint-config-prettier": "^6.1.0",
+    "prettier": "^1.18.2",
+    "typescript": "^3.5.2"
+  }
+}

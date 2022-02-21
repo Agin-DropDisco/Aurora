@@ -1,0 +1,374 @@
+import React, { ReactNode } from 'react'
+import { AbstractConnector } from '@web3-react/abstract-connector'
+import {
+  ChainId,
+  JSBI,
+  Percent,
+  CurrencyAmount,
+  WETH,
+  WMATIC,
+  DexSwapZoo,
+  Token,
+  Currency,
+  RoutablePlatform
+} from 'dexswap-sdk'
+import { authereum, injected, walletConnect, walletConnectAURORA, walletConnectPOLYGON } from '../connectors'
+import UniswapLogo from '../assets/svg/uniswap-logo.svg'
+import DexGradientLogo from '../assets/images/grad-grey.png'
+import SushiswapLogo from '../assets/svg/sushiswap-logo.svg'
+import QuickswapLogo from '../assets/images/quickswap-logo.png'
+
+
+export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
+
+// a list of tokens by chain
+type ChainTokenList = {
+  readonly [chainId in ChainId]: Token[]
+}
+
+
+export const DAI: { [key: number]: Token } = {
+  [ChainId.MAINNET]: new Token(ChainId.MAINNET, '0x6B175474E89094C44Da98b954EedeAC495271d0F',18, 'DAI', 'Dai Stablecoin'),
+  [ChainId.RINKEBY]: new Token(
+    ChainId.RINKEBY,
+    '0x146942dE725f2d28857e3B22356433c54FBf9daD',
+    18,
+    'DAI', 'Dai Stablecoin'
+  ),
+  [ChainId.AURORA]: new Token(
+    ChainId.AURORA,
+    '0xfa11E45e769d26AdBf393395EbEe53ae1a20fe97',
+    18,
+    'DAI', 'Dai Stablecoin'
+  ),
+  [ChainId.MUMBAI]: new Token(
+    ChainId.MUMBAI,
+    '0xcB1e72786A6eb3b44C2a2429e317c8a2462CFeb1',
+    18,
+    'DAI', 'Dai Stablecoin'
+  )
+}
+
+export const USDC: { [key: number]: Token } = {
+  [ChainId.MAINNET]: new Token(ChainId.MAINNET, '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', 6, 'USDC', 'USD//C'),
+  [ChainId.RINKEBY]: new Token(
+    ChainId.RINKEBY,
+    '0x03C8551611D4C718A1C3599A933d7E7c2e8038DC',
+    18,
+    'USDC',
+    'USD//C'
+  ),
+  [ChainId.AURORA]: new Token(
+    ChainId.AURORA,
+    '0x69b107a88107DD99Fadcfc82C1B6F3D6F04Ca6E6',
+    18,
+    'USD//C',
+    'USDC'
+  ),
+  [ChainId.MUMBAI]: new Token(
+    ChainId.MUMBAI,
+    '0xa3bbbFB7F2c1bf1dCD5Fe11eEEb8039CD7D73e44',
+    18,
+    'USDC',
+    'USD//C'
+  ),
+}
+
+export const USDT: { [key: number]: Token } = {
+  [ChainId.MAINNET]: new Token(ChainId.MAINNET, '0xdAC17F958D2ee523a2206206994597C13D831ec7', 6, 'USDT', 'Tether USD'),
+  [ChainId.RINKEBY]: new Token(
+    ChainId.RINKEBY,
+    '0x1dbdFBF4787b14c2D0936E1B48546641E33A8418',
+    18, 'USDT', 'Tether USD'
+  ),
+  [ChainId.AURORA]: new Token(
+    ChainId.AURORA,
+    '0xd751E2d401b37B449E5230BfbB6F0e7eECa724f3',
+    18, 'USDT', 'Tether USD'
+  ),
+  [ChainId.MUMBAI]: new Token(
+    ChainId.MUMBAI,
+    '0x3813e82e6f7098b9583FC0F33a962D02018B6803',
+    6, 'USDT', 'Tether USD'
+  ),
+}
+
+export const WBTC: { [key: number]: Token } = {
+  [ChainId.MAINNET]: new Token(
+    ChainId.MAINNET,
+    '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
+    18,
+    'WBTC',
+    'Wrapped BTC'
+  ),
+  [ChainId.RINKEBY]: new Token(
+    ChainId.RINKEBY,
+    '0x15f3Adb465bBc6e880093EC70C8559Fd054aD439',
+    18,
+    'WBTC',
+    'Wrapped BTC'
+  ),
+  [ChainId.AURORA]: new Token(
+    ChainId.AURORA,
+    '0x43B52FF270093b7Ef48F0CF731eD0C5500B7B5B7',
+    18,
+    'WBTC',
+    'Wrapped BTC'
+  ),
+}
+
+export const ZOO: { [key: number]: Token } = {
+  [ChainId.AURORA]: new Token(
+    ChainId.AURORA,
+    '0xfe9ACf9f058c9324B7A6CE576e07485414b94B17',
+    18, 'ZOO', 'ZooHarmony'
+  ),
+  [ChainId.MUMBAI]: new Token(
+    ChainId.MUMBAI,
+    '0xAd2F2D10d8056ECa21A26436245AC2666a6662aB',
+    18, 'ZOO', 'ZooHarmony'
+  ),
+}
+
+
+// used to construct intermediary pairs for trading
+export const BASES_TO_CHECK_TRADES_AGAINST: ChainTokenList = {
+  [ChainId.MAINNET]: [
+    WETH[ChainId.MAINNET],
+    USDC[ChainId.MAINNET],
+    WBTC[ChainId.MAINNET],
+    USDT[ChainId.MAINNET]
+  ],
+  [ChainId.RINKEBY]: [
+    WETH[ChainId.RINKEBY], 
+    USDC[ChainId.RINKEBY],
+    USDT[ChainId.RINKEBY],
+    WBTC[ChainId.RINKEBY]
+  ],
+  [ChainId.AURORA]: [
+    WETH[ChainId.AURORA], 
+    USDC[ChainId.AURORA],
+    USDT[ChainId.AURORA],
+    WBTC[ChainId.AURORA]
+  ],
+  [ChainId.MUMBAI]: [
+    WETH[ChainId.MUMBAI], 
+    WMATIC[ChainId.MUMBAI], 
+    USDC[ChainId.MUMBAI],
+    USDT[ChainId.MUMBAI],
+    ZOO[ChainId.MUMBAI],
+    DexSwapZoo[ChainId.MUMBAI],
+  ],
+
+}
+
+// used for display in the default list when adding liquidity (native currency is already shown
+// by default, so no need to add the wrapper to the list)
+export const SUGGESTED_BASES: ChainTokenList = {
+  [ChainId.MAINNET]: [USDC[ChainId.MAINNET], USDT[ChainId.MAINNET], WBTC[ChainId.MAINNET]],
+  [ChainId.RINKEBY]: [DexSwapZoo[ChainId.RINKEBY]],
+  [ChainId.AURORA]: [DexSwapZoo[ChainId.AURORA]],
+  [ChainId.MUMBAI]: [WMATIC[ChainId.MUMBAI], ZOO[ChainId.MUMBAI], DexSwapZoo[ChainId.MUMBAI]],
+}
+
+// used to construct the list of all pairs we consider by default in the frontend
+export const BASES_TO_TRACK_LIQUIDITY_FOR: ChainTokenList = {
+  [ChainId.MAINNET]: [WETH[ChainId.MAINNET], USDC[ChainId.MAINNET], USDT[ChainId.MAINNET],  DAI[ChainId.MAINNET]],
+  [ChainId.MUMBAI]: [WETH[ChainId.MUMBAI], USDC[ChainId.MUMBAI], USDT[ChainId.MUMBAI],  ZOO[ChainId.MUMBAI],  DexSwapZoo[ChainId.MUMBAI],  DAI[ChainId.MUMBAI]],
+  [ChainId.RINKEBY]: [
+    WETH[ChainId.RINKEBY], 
+    WBTC[ChainId.RINKEBY], 
+    DAI[ChainId.RINKEBY], 
+    USDC[ChainId.RINKEBY], 
+    USDT[ChainId.RINKEBY], 
+  ],
+  [ChainId.AURORA]: [
+    WETH[ChainId.AURORA], 
+    WBTC[ChainId.AURORA], 
+    DAI[ChainId.AURORA], 
+    USDC[ChainId.AURORA], 
+    USDT[ChainId.AURORA],
+    ZOO[ChainId.AURORA],
+    DexSwapZoo[ChainId.AURORA]
+  ],
+}
+
+export const PINNED_PAIRS: { readonly [chainId in ChainId]?: [Token, Token][] } = {
+  [ChainId.MAINNET]: [
+    [USDC[ChainId.MAINNET], USDT[ChainId.MAINNET]],
+    [USDT[ChainId.MAINNET], DAI[ChainId.MAINNET]]
+  ],
+  [ChainId.MUMBAI]: [
+    [USDC[ChainId.MUMBAI], USDT[ChainId.MUMBAI]],
+    [WMATIC[ChainId.MUMBAI], USDT[ChainId.MUMBAI]],
+    [WMATIC[ChainId.MUMBAI], USDC[ChainId.MUMBAI]],
+    [WMATIC[ChainId.MUMBAI], DexSwapZoo[ChainId.MUMBAI]],
+    [WMATIC[ChainId.MUMBAI], ZOO[ChainId.MUMBAI]],
+    [USDT[ChainId.MUMBAI], DAI[ChainId.MUMBAI]]
+  ],
+  [ChainId.RINKEBY]: [
+    [DexSwapZoo[ChainId.RINKEBY], WETH[ChainId.RINKEBY]],
+    [DexSwapZoo[ChainId.RINKEBY], WBTC[ChainId.RINKEBY]],
+  ],
+  [ChainId.AURORA]: [
+    [WETH[ChainId.AURORA], USDC[ChainId.AURORA]],
+    [WETH[ChainId.AURORA], USDT[ChainId.AURORA]],
+    [WETH[ChainId.AURORA], DAI[ChainId.AURORA]],
+    [WETH[ChainId.AURORA], WBTC[ChainId.AURORA]],
+    [WETH[ChainId.AURORA], ZOO[ChainId.AURORA]],
+    [WETH[ChainId.AURORA], DexSwapZoo[ChainId.AURORA]],
+  ],
+}
+
+export interface WalletInfo {
+  connector?: AbstractConnector
+  name: string
+  iconName: string
+  description: string
+  href: string | null
+  color: string
+  primary?: true
+  mobile?: true
+  mobileOnly?: true
+}
+
+export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
+  INJECTED: {
+    connector: injected,
+    name: 'Injected',
+    iconName: 'arrow-right.svg',
+    description: 'Injected web3 provider.',
+    href: null,
+    color: '#010101',
+    primary: true
+  },
+  METAMASK: {
+    connector: injected,
+    name: 'MetaMask',
+    iconName: 'metamask.png',
+    description: 'Easy-to-use browser extension.',
+    href: null,
+    color: '#E8831D'
+  },
+  WALLET_CONNECT: {
+    connector: walletConnect,
+    name: 'WalletConnect',
+    iconName: 'wallet-connect.svg',
+    description: 'Connect to Trust Wallet, Rainbow Wallet and more...',
+    href: null,
+    color: '#4196FC',
+    mobile: true
+  },
+  WALLET_CONNECT_AURORA: {
+    connector: walletConnectAURORA,
+    name: 'Aurora',
+    iconName: 'wallet-connect.svg',
+    description: 'Connect to Trust Wallet, Rainbow Wallet and more...',
+    href: null,
+    color: '#4196FC',
+    mobile: true
+  },
+  WALLET_CONNECT_POLYGON: {
+    connector: walletConnectPOLYGON,
+    name: 'Polygon',
+    iconName: 'wallet-connect.svg',
+    description: 'Connect to Trust Wallet, Rainbow Wallet and more...',
+    href: null,
+    color: '#4196FC',
+    mobile: true
+  },
+  AUTHEREUM: {
+    connector: authereum,
+    name: 'Authereum',
+    iconName: 'authereum.svg',
+    description: 'Connect using Authereum.',
+    href: null,
+    color: '#4196FC',
+    mobile: true
+  }
+}
+
+
+export const NetworkContextName = 'NETWORK'
+
+// default allowed slippage, in bips
+export const INITIAL_ALLOWED_SLIPPAGE = 50
+// 20 minutes, denominated in seconds
+export const DEFAULT_DEADLINE_FROM_NOW = 60 * 20
+export const DEFAULT_USER_MULTIHOP_ENABLED = true
+
+export const BIG_INT_ZERO = JSBI.BigInt(0)
+
+// one basis point
+export const ONE_BIPS = new Percent(JSBI.BigInt(1), JSBI.BigInt(10000))
+export const BIPS_BASE = JSBI.BigInt(10000)
+// used for warning states
+export const ALLOWED_PRICE_IMPACT_LOW: Percent = new Percent(JSBI.BigInt(100), BIPS_BASE) // 1%
+export const ALLOWED_PRICE_IMPACT_MEDIUM: Percent = new Percent(JSBI.BigInt(300), BIPS_BASE) // 3%
+export const ALLOWED_PRICE_IMPACT_HIGH: Percent = new Percent(JSBI.BigInt(500), BIPS_BASE) // 5%
+// if the price slippage exceeds this number, force the user to type 'confirm' to execute
+export const PRICE_IMPACT_WITHOUT_FEE_CONFIRM_MIN: Percent = new Percent(JSBI.BigInt(1000), BIPS_BASE) // 10%
+// for non expert mode disable swaps above this
+export const BLOCKED_PRICE_IMPACT_NON_EXPERT: Percent = new Percent(JSBI.BigInt(1500), BIPS_BASE) // 15%
+
+// used to ensure the user doesn't send so much ETH so they end up with <.01
+export const MIN_ETH: JSBI = JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(16)) // .01 ETH
+
+export const DEFAULT_TOKEN_LIST = 'https://raw.githubusercontent.com/Agin-DropDisco/crypto-logo-asset/main/auroraXdexswapzoo.json'
+
+export const ZERO_USD = CurrencyAmount.usd('0')
+
+interface NetworkDetails {
+  chainId: string
+  chainName: string
+  nativeCurrency: {
+    name: string
+    symbol: string
+    decimals: number
+  }
+  rpcUrls: string[]
+  blockExplorerUrls?: string[]
+  iconUrls?: string[] // Currently ignored.
+  metamaskAddable?: boolean
+}
+
+export const NETWORK_DETAIL: { [chainId: number]: NetworkDetails } = {
+  [ChainId.AURORA]: {
+    chainId: `0x${ChainId.AURORA.toString(16)}`,
+    chainName: 'AURORA',
+    nativeCurrency: {
+      name: Currency.AURORA.name || 'AURORA',
+      symbol: Currency.AURORA.symbol || 'AURORA',
+      decimals: Currency.AURORA.decimals || 18
+    },
+    rpcUrls: ['https://testnet.aurora.dev'],
+    blockExplorerUrls: ['https://testnet.aurorascan.dev'],
+    metamaskAddable: true
+  },
+  [ChainId.MUMBAI]: {
+    chainId: `0x${ChainId.MUMBAI.toString(16)}`,
+    chainName: 'POLYGON',
+    nativeCurrency: {
+      name: Currency.MATIC.name || 'Ether',
+      symbol: Currency.MATIC.symbol || 'Ether',
+      decimals: Currency.MATIC.decimals || 18
+    },
+    rpcUrls: ['https://rpc-mumbai.matic.today'],
+    blockExplorerUrls: ['https://mumbai.polygonscan.com'],
+    metamaskAddable: true
+  }
+}
+
+export const ROUTABLE_PLATFORM_LOGO: { [routablePaltformName: string]: ReactNode } = {
+  [RoutablePlatform.UNISWAP.name]: <img width={16} height={16} src={UniswapLogo} alt="uniswap" />,
+  [RoutablePlatform.SUSHISWAP.name]: <img width={16} height={16} src={SushiswapLogo} alt="sushiswap" />,
+  [RoutablePlatform.DEXSWAP.name]: <img width={16} height={16} src={DexGradientLogo} alt="dexswap" />,
+  [RoutablePlatform.QUICKSWAP.name]: <img width={16} height={16} src={QuickswapLogo} alt="quickswap" />,
+}
+
+export const ChainLabel: any = {
+  [ChainId.MAINNET]: 'Ethereum',
+  [ChainId.RINKEBY]: 'Rinkeby',
+  [ChainId.AURORA]: 'Aurora',
+  [ChainId.MUMBAI]: 'Polygon'
+}
